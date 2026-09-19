@@ -1,12 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# ============================
+# ===========================
 # Stellar CNN Inference (Colab single cell) — robust letter mapping & ensemble decoding
-# ============================
+# ===========================
 
 # --- (edit these paths) ---
 MODEL_PATH = "star_rgb_cnn_staged_combined.keras"   # your saved model (.keras/.h5/SavedModel dir)
-INPUT_PATH = "one_image_or_folder"           # a file path OR a folder path
+INPUT_PATH = "one_image_or_folder"          # a file path OR a folder path
 GROUND_TRUTH_CSV = "metadata.csv"                   # NEEDED if you want proper classes
 CLASSES_JSON_PATH = None                  # optional but recommended; set None if you don't have it.
 
@@ -18,18 +16,18 @@ AUTO_REMAP_LETTERS = True         # learn a permutation (pred_idx -> real letter
 SHOW_IMAGES = True                # set False to skip matplotlib displays
 
 
-# ============================
+# ===========================
 # Imports
-# ============================
+# ===========================
 import os, glob, re, json
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.utils import load_img, img_to_array
 
-# ============================
+# ===========================
 # Helpers
-# ============================
+# ===========================
 def softmax(x, axis=-1, eps=1e-8):
     x = x - np.max(x, axis=axis, keepdims=True)
     e = np.exp(x)
@@ -152,9 +150,9 @@ def greedy_assign_max(conf_mat):
             used_actual.add(j)
     return mapping
 
-# ============================
+# ===========================
 # Load model
-# ============================
+# ===========================
 print("Loading model:", MODEL_PATH)
 model = tf.keras.models.load_model(MODEL_PATH)
 print("✅ Model loaded.")
@@ -163,9 +161,9 @@ try:
 except Exception:
     pass
 
-# ============================
+# ===========================
 # Classes / defaults
-# ============================
+# ===========================
 CANONICAL_LETTERS = ['O','B','A','F','G','K','M']
 DEFAULT_STAGE_CLASSES = ['white_dwarf','main_sequence','subgiant','giant','supergiant','unknown']
 DEFAULT_SUBCLASSES = [str(i) for i in range(10)]  # 0..9
@@ -191,9 +189,9 @@ if classes_json:
 if stage_classes is None:
     stage_classes = DEFAULT_STAGE_CLASSES
 
-# ============================
+# ===========================
 # Collect & preprocess images
-# ============================
+# ===========================
 image_paths = collect_images(INPUT_PATH)
 if len(image_paths) == 0:
     raise RuntimeError("No images found. Check INPUT_PATH.")
@@ -214,9 +212,9 @@ def preprocess_image(p):
 images = np.stack([preprocess_image(p) for p in image_paths], axis=0)
 print(f"Preprocessed batch shape: {images.shape}")
 
-# ============================
+# ===========================
 # Ground truth: CSV + filename parse
-# ============================
+# ===========================
 GT = {}
 letters_from_gt = set()
 if GROUND_TRUTH_CSV and os.path.isfile(GROUND_TRUTH_CSV):
@@ -237,9 +235,9 @@ for p in image_paths:
             GT[base] = parsed
             letters_from_gt.add(parsed[0])
 
-# ============================
+# ===========================
 # Predict
-# ============================
+# ===========================
 raw_preds = model.predict(images, batch_size=32, verbose=0)
 
 # Normalize to dict {output_name: np.ndarray}
@@ -312,9 +310,9 @@ if comb_letters != num_letters:
     print(f"[warn] combined head implies {comb_letters} letters, but letter head has {num_letters}. Using letter head count.")
 P_comb_3d = P_comb.reshape((-1, comb_letters, 10))
 
-# ============================
+# ===========================
 # Build per-letter probabilities & optional auto-remap from GT
-# ============================
+# ===========================
 # Per-letter from combined head (sum subclasses)
 P_letter_from_comb = P_comb_3d.sum(axis=2)  # [N, L]
 
@@ -366,9 +364,9 @@ if AUTO_REMAP_LETTERS and len(GT) > 0 and len(letters_from_gt) > 0:
     else:
         print("[info] Not enough GT overlap to learn letter mapping. Using blended decoding with placeholder names.")
 
-# ============================
+# ===========================
 # Decode predictions
-# ============================
+# ===========================
 results = []  # (image_path, pred_str, gt_str_or_None)
 
 for i, path in enumerate(image_paths):
@@ -400,9 +398,9 @@ for i, path in enumerate(image_paths):
 
     results.append((path, pred_str, gt))
 
-# ============================
+# ===========================
 # Visualize (matplotlib)
-# ============================
+# ===========================
 def show_with_text(img_arr, pred, gt=None):
     plt.imshow(img_arr)
     txt = f"Predicted: {pred}" + (f"\nActual: {gt}" if gt else "")
