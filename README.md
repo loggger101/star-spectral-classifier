@@ -1,7 +1,8 @@
 # Star Cataloguing Deep Learning Model
 
 A catalog-driven deep-learning pipeline that classifies stars from RGB image cutouts. The model
-predicts the Morgan–Keenan spectral letter (O, B, A, F, G, K, M) and the subclass digit (0–9 within
+predicts the Morgan–Keenan spectral letter (O, B, A, F, G, K, M — the shipped checkpoint resolves
+six of them, see [Trained weights](#trained-weights)) and the subclass digit (0–9 within
 the predicted letter) from photometric imagery alone — no spectra.
 
 Project page: **[loganmedwardsastrophy.com/star-catalog.html](https://www.loganmedwardsastrophy.com/star-catalog.html)**
@@ -12,7 +13,7 @@ Held-out test set: **14,406 samples** (96,039 total across the 70/15/15 split).
 
 | Metric | Value |
 |---|---|
-| Letter top-1 (7-way) | **84.30%** |
+| Letter top-1 (6-way, see note) | **84.30%** |
 | Letter top-2 | **98.41%** |
 | Letter macro F1 | 0.8455 (precision 0.8467 / recall 0.8479) |
 | Subclass top-1 (10-way digit) | 30.62% |
@@ -20,7 +21,7 @@ Held-out test set: **14,406 samples** (96,039 total across the 70/15/15 split).
 | Combined exact (letter + digit) | 30.15% |
 
 <p align="center">
-  <img src="results/confusion_matrix_letters_test.png" width="480" alt="7-class spectral letter confusion matrix">
+  <img src="results/confusion_matrix_letters_test.png" width="480" alt="6-class spectral letter confusion matrix over B, A, F, G, K, M">
 </p>
 
 The letter head is the headline number: it tracks the macroscopic temperature sequence robustly.
@@ -98,7 +99,27 @@ The prepared image bundle is on Kaggle:
 ## Trained weights
 
 [`models/star_rgb_cnn_staged_combined.keras`](models/star_rgb_cnn_staged_combined.keras) (6.5 MB) is
-the trained multi-task model that produced the metrics above.
+the trained multi-task model that produced the metrics above. Inspecting it:
+
+| | |
+|---|---|
+| Input | 64 × 64 × 3 |
+| `letter_output` | **6** units |
+| `combined_output` | **60** units (6 letters × 10 subclasses) |
+| `stage_output` | 6 units |
+
+**On the missing O class.** This run's label space has six letters — B, A, F, G, K, M — not seven.
+`confusion_matrix_letters_test.png` is a 6 × 6 matrix and the combined head is 60-wide, both
+consistent with the checkpoint. O is present in the catalogue (78 raw / 283 after balancing, see the
+table above) but is rare enough that it did not survive into this run's encoded label set, and the
+letter encoder is built from the letters actually present in the training split. The headline 84.30%
+is therefore a 6-way number. A separate 7-letter / 70-combined checkpoint does exist from an earlier,
+smaller-dataset run, but its metrics are not the ones reported here, so it is not the one shipped.
+
+**On input resolution.** The checkpoint takes 64 × 64 input, while `src/train_star_cnn.py` currently
+has `IMG_SIZE = (256, 256)`. The script's resolution was changed between runs; set it to `(64, 64)`
+to reproduce this checkpoint. `src/infer_stars.py` reads the input size off the loaded model, so
+inference adapts automatically either way.
 
 ## Running it
 
