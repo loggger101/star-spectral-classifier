@@ -27,6 +27,12 @@ The letter head is the headline number: it tracks the macroscopic temperature se
 Subclass resolution is intrinsically harder, because RGB cutouts encode colour differences only
 coarsely. Raw values are in [`results/test_metrics_summary.json`](results/test_metrics_summary.json).
 
+[`results/`](results) also holds the letter-head training curves
+([`training_curves_letters.png`](results/training_curves_letters.png)), the overall multi-task curves
+([`training_curves_overall.png`](results/training_curves_overall.png)), and the full-resolution
+combined letter × subclass confusion matrix
+([`confusion_matrix_combined_test.png`](results/confusion_matrix_combined_test.png)).
+
 Confusion concentrates at decision boundaries that are *physically* adjacent — A/F, F/G and K/M, all
 neighbours in the H–R diagram — and subclass errors are locally smooth, typically off by ±1. The
 combined confusion matrix is block-diagonal: errors cluster within a letter far more than they cross
