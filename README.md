@@ -140,8 +140,18 @@ models/      trained .keras model
 docs/        full technical report (PDF)
 ```
 
-The notebooks are the versions that actually produced these results; the scripts are the same code
-lifted out of the Colab cells.
+### Provenance
+
+`notebooks/` holds the original Colab notebooks verbatim, with execution outputs stripped and
+nothing else changed. `src/` is the same code lifted out of those cells, byte for byte, with the
+Colab-only cells left behind:
+
+- `build_star_dataset.py` omits the notebook's opening `pip install` bootstrap cell — that is what
+  `requirements.txt` is for.
+- `infer_stars.py` omits the trailing `drive.mount('/content/drive')` cell, which only does anything
+  inside Colab.
+
+No other edits were needed: both scripts already used relative paths.
 
 ## Report
 
