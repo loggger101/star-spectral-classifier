@@ -45,7 +45,9 @@ tf.keras.backend.clear_session()
 # 1) Configuration
 # =========================
 ZIP_PATH = "star_images_bundle.zip"
-IMG_SIZE = (256, 256)
+# The notebook was last left at (256, 256), but the checkpoint in models/ takes
+# 64x64 input -- set here to match it so this script reproduces what ships.
+IMG_SIZE = (64, 64)
 MAX_IMAGES = None
 TEST_SIZE = 0.15
 VAL_SIZE = 0.15

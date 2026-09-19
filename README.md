@@ -116,10 +116,10 @@ letter encoder is built from the letters actually present in the training split.
 is therefore a 6-way number. A separate 7-letter / 70-combined checkpoint does exist from an earlier,
 smaller-dataset run, but its metrics are not the ones reported here, so it is not the one shipped.
 
-**On input resolution.** The checkpoint takes 64 × 64 input, while `src/train_star_cnn.py` currently
-has `IMG_SIZE = (256, 256)`. The script's resolution was changed between runs; set it to `(64, 64)`
-to reproduce this checkpoint. `src/infer_stars.py` reads the input size off the loaded model, so
-inference adapts automatically either way.
+**On input resolution.** The checkpoint takes 64 × 64 input. The notebook was last left at
+`IMG_SIZE = (256, 256)`, so `src/train_star_cnn.py` sets it to `(64, 64)` to match what ships —
+raise it to train at higher resolution. `src/infer_stars.py` reads the input size off the loaded
+model, so inference adapts automatically either way.
 
 ## Running it
 
@@ -178,7 +178,12 @@ Colab-only cells left behind:
 - `infer_stars.py` omits the trailing `drive.mount('/content/drive')` cell, which only does anything
   inside Colab.
 
-No other edits were needed: both scripts already used relative paths.
+One edit was applied to the code itself:
+
+- `train_star_cnn.py` — `IMG_SIZE` is `(64, 64)` rather than the `(256, 256)` the notebook was last
+  left at, so the script matches the 64 × 64 checkpoint in `models/`.
+
+Both scripts already used relative paths, so nothing else needed changing.
 
 ## Report
 
