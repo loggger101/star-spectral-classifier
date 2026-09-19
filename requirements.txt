@@ -1,0 +1,17 @@
+# Stage 1 — catalogue queries + image builder
+astroquery
+astropy
+requests
+Pillow
+tqdm
+pandas
+numpy
+
+# Stage 2/3 — multi-task CNN training and inference
+tensorflow
+scikit-learn
+matplotlib
+
+# Optional: enables the GPU-accelerated array paths and --gpu-benchmark
+# in src/build_star_dataset.py. The builder falls back to NumPy without it.
+# torch

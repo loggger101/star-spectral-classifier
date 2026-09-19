@@ -1,0 +1,13 @@
+{
+  "letters_top1_accuracy": 0.843010572243665,
+  "letters_top2_accuracy": 0.984057727806679,
+  "letters_macro_precision": 0.8467279518246711,
+  "letters_macro_recall": 0.8479288440468814,
+  "letters_macro_f1": 0.8455316416170673,
+  "subclass_top1_accuracy": 0.306175532807518,
+  "subclass_top2_accuracy": 0.5150192985400235,
+  "subclass_macro_precision": 0.3143598250102263,
+  "subclass_macro_recall": 0.285362393095251,
+  "subclass_macro_f1": 0.281724062548063,
+  "combined_exact_accuracy": 0.30147675784527606
+}

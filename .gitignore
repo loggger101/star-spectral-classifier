@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Datasets and build output (rebuild with src/build_star_dataset.py)
+star_images_raw/
+star_images_proc/
+dataset/
+*.zip
+*.npy
+stars_dataset.csv
+star_images_catalog.csv
+bad_images.csv
+derived_labels_used_for_training*.csv
+training_history_staged_combined.*
+
+# Checkpoints written during training; the released model lives in models/
+best_star_model_staged_combined.keras
+*.h5
+
+# OS
+.DS_Store
+Thumbs.db
