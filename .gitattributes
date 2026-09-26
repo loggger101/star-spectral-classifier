@@ -1,0 +1,2 @@
+# Notebooks walk through the pipeline in src/; keep them out of GitHub language stats
+*.ipynb linguist-documentation
