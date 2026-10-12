@@ -165,6 +165,9 @@ except Exception:
 # Classes / defaults
 # ===========================
 CANONICAL_LETTERS = ['O','B','A','F','G','K','M']
+# Letter-head order of the shipped model: train_star_cnn.py's LabelEncoder sorts the
+# six letters it was trained on (that run had no O stars).
+SHIPPED_LETTER_CLASSES = ['A','B','F','G','K','M']
 DEFAULT_STAGE_CLASSES = ['white_dwarf','main_sequence','subgiant','giant','supergiant','unknown']
 DEFAULT_SUBCLASSES = [str(i) for i in range(10)]  # 0..9
 
@@ -205,7 +208,8 @@ except Exception:
     target_h, target_w = 64, 64
 
 def preprocess_image(p):
-    img = load_img(p, target_size=(target_h, target_w))
+    # Lanczos, as in training; load_img's default is nearest-neighbour
+    img = load_img(p, target_size=(target_h, target_w), interpolation="lanczos")
     arr = img_to_array(img).astype('float32') / 255.0
     return arr
 
@@ -283,12 +287,19 @@ P_stage  = preds[stage_key]     # [N, S]
 
 # Letter classes length
 num_letters = P_letter.shape[-1]
+letters_known = True
 if (letter_classes is None) or (len(letter_classes) != num_letters):
-    # must infer. Training used LabelEncoder on present letters (alphabetical subset).
-    # Without saved order, will learn a permutation from GT if possible.
-    print(f"[info] No letter_classes or size mismatch; will infer mapping from GT if available.")
-    # provisional names just placeholders
-    letter_classes = [f"IDX{j}" for j in range(num_letters)]
+    if num_letters == len(SHIPPED_LETTER_CLASSES):
+        # the shipped model's encoder order (see SHIPPED_LETTER_CLASSES)
+        letter_classes = list(SHIPPED_LETTER_CLASSES)
+        print(f"[info] Using the shipped model's letter order: {letter_classes}")
+    else:
+        # must infer. Training used LabelEncoder on present letters (alphabetical subset).
+        # Without saved order, will learn a permutation from GT if possible.
+        print(f"[info] No letter_classes or size mismatch; will infer mapping from GT if available.")
+        # provisional names just placeholders
+        letter_classes = [f"IDX{j}" for j in range(num_letters)]
+        letters_known = False
 
 # Stage sanity: detect collapse (dominance of a single class)
 top_stage = np.argmax(P_stage, axis=1)
@@ -331,7 +342,9 @@ if cntL.max()/cntL.sum() > 0.95 and LETTER_BLEND > 0.0:
 
 # Try to learn mapping pred_idx -> real letter from GT (greedy 1-1 assignment)
 remap = None
-if AUTO_REMAP_LETTERS and len(GT) > 0 and len(letters_from_gt) > 0:
+# Only when the letter order is unknown: the mapping is fitted to the same GT the
+# predictions are compared with, so it would otherwise overwrite a known order
+if AUTO_REMAP_LETTERS and not letters_known and len(GT) > 0 and len(letters_from_gt) > 0:
     # Actual letters present in GT; sort alphabetically (LabelEncoder order)
     actual_letters_sorted = sorted(list(letters_from_gt))[:num_letters]  # cap to L
     actual_index = {L:i for i,L in enumerate(actual_letters_sorted)}
