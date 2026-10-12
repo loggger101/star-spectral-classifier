@@ -72,7 +72,11 @@ def get_session_or_create(timeout=15):
 # -----------------------------
 # PyTorch GPU benchmarking
 # -----------------------------
-def timed_forward_torch(device, iters=500, n=10000, d=1024, k=1024, dtype=torch.float32):
+def timed_forward_torch(device, iters=500, n=10000, d=1024, k=1024, dtype=None):
+    # dtype defaults inside the body: a torch.float32 default would be evaluated at
+    # import time and crash the whole builder when torch is not installed
+    if dtype is None:
+        dtype = torch.float32
     x = torch.randn(n, d, device=device, dtype=(torch.float32 if device.type == "cpu" else dtype))
     w = torch.randn(d, k, device=device, dtype=(torch.float32 if device.type == "cpu" else dtype))
     b = torch.randn(k, device=device, dtype=(torch.float32 if device.type == "cpu" else dtype))
